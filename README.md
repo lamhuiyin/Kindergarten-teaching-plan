@@ -65,7 +65,7 @@ Why: The industry standard, highly effective for semantic search,is  readily ava
 
 ## Usage
 
-1. Access the web interface at https://lamhuiyin.github.io/kindergarten_teaching_plan/
+1. Access the web interface at https://lamhuiyin.github.io/Kindergarten_teaching_plan/
 2. Fill in the plan requirements:
    - Theme/Topic (e.g., "Seasons", "Animals")
    - Age Group (K1-K3)
