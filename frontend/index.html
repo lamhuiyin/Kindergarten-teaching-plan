@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kindergarten Lesson Planner</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Include html2pdf library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Kindergarten Lesson Planner</h1>
+            <p class="subtitle">Create teaching plans based on Hong Kong EDB curriculum guide</p>
+        </header>
+        
+        <div class="content">
+            <form id="planForm">
+                <div class="two-column">
+                    <div class="form-group">
+                        <label for="theme">Theme/Topic</label>
+                        <input type="text" id="theme" name="theme" required value="Seasons" placeholder="e.g., Seasons, Animals, Family">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="ageGroup">Age Group</label>
+                        <select id="ageGroup" name="ageGroup" required>
+                            <option value="K1">K1 (2-3 years)</option>
+                            <option value="K2" selected>K2 (3-4 years)</option>
+                            <option value="K3">K3 (4-5 years)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="two-column">
+                    <div class="form-group">
+                        <label for="duration">Activity Duration</label>
+                        <select id="duration" name="duration" required>
+                            <option value="30 minutes">30 minutes</option>
+                            <option value="45 minutes" selected>45 minutes</option>
+                            <option value="60 minutes">60 minutes</option>
+                            <option value="90 minutes">90 minutes</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="learningArea">Key Learning Area</label>
+                        <select id="learningArea" name="learningArea" required>
+                            <option value="Nature and Living" selected>Nature and Living</option>
+                            <option value="Language">Language</option>
+                            <option value="Arts and Creativity">Arts and Creativity</option>
+                            <option value="Physical Fitness and Health">Physical Fitness</option>
+                            <option value="Early Childhood Mathematics">Mathematics</option>
+                            <option value="Self and Society">Self and Society</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="additionalNotes">Additional Notes (Optional)</label>
+                    <textarea id="additionalNotes" name="additionalNotes" placeholder="Any specific requirements or focus areas..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" class="btn-generate">Generate Lesson Plan</button>
+                </div>
+            </form>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Generating your lesson plan... This may take a moment.</p>
+            </div>
+            
+            <div class="output-container hidden" id="outputContainer">
+                <div class="output-header">
+                    <div class="output-title">Generated Lesson Plan</div>
+                    <div class="output-actions">
+                        <button class="btn-download" id="downloadBtn">Download PDF</button>
+                        <button class="btn-copy" id="copyBtn">Copy Text</button>
+                        <span class="debug-toggle" id="debugToggle">Show Debug</span>
+                    </div>
+                </div>
+                <div id="output" class="lesson-plan-content"></div>
+                <div id="debugInfo" class="debug-info"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

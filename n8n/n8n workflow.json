@@ -1,0 +1,427 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lesson-planner",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "f34e35ba-c206-4dad-a7a5-3e3f53d7f736",
+      "name": "Lesson Plan Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -1920,
+        928
+      ],
+      "webhookId": "lesson-planner-webhook"
+    },
+    {
+      "parameters": {
+        "include": "selected",
+        "includeFields": "=body.theme, body.ageGroup, body.duration, body.learningArea, body.additionalNotes",
+        "options": {}
+      },
+      "id": "a5b09616-d22a-4994-8f50-f6e450f41cda",
+      "name": "Store User Input",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        -1696,
+        928
+      ]
+    },
+    {
+      "parameters": {
+        "chunkSize": 5000,
+        "chunkOverlap": 500,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        -1264,
+        400
+      ],
+      "id": "bf35d52d-2e68-4712-9049-49f734d3ddd4",
+      "name": "Recursive Character Text Splitter"
+    },
+    {
+      "parameters": {
+        "url": "https://www.edb.gov.hk/attachment/en/curriculum-development/major-level-of-edu/preprimary/ENG_KGECG_2017.pdf",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1696,
+        176
+      ],
+      "id": "a0821c53-ea56-4ba8-a3fb-53cd2027806b",
+      "name": "Get PDF"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "mode": "list",
+          "value": "kindergarten-curriculum"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        -1440,
+        -32
+      ],
+      "id": "9e5be050-71d9-4ac2-97b8-8764a69e5c84",
+      "name": "PDF Embeddings",
+      "credentials": {
+        "pineconeApi": {
+          "id": "zb0hgTFLyEb5sW5g",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "textSplittingMode": "custom",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        -1344,
+        192
+      ],
+      "id": "e8903e75-3a70-43ec-8618-bcd6078c2702",
+      "name": "PDF Loader"
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-chat-v3.1:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -1472,
+        1152
+      ],
+      "id": "387b6750-bddd-494b-8c00-93109e3b6543",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "mvG5zYbeVXXdUaYm",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=USER REQUEST:\\n- Theme: {{ $('Store User Input').item.json.theme}}\\n- Age Group: {{$('Store User Input').item.json.ageGroup }}\\n- Activity Duration: {{$('Store User Input').item.json.duration  }}\\n- Key Learning Area: {{$('Store User Input').item.json.learningArea  }}\\n- Additional Notes: {{ $json.additionalNotes }}\\n\\nINSTRUCTIONS:\\n1. The plan must be directly inspired by and reference the 'Curriculum Context' provided above. Do not use external knowledge.\\n2. Structure the output as follows:\\n   - **Learning Objectives:** List 2-3 clear objectives derived from the curriculum guide.\\n   - **Key Vocabulary:** Simple words related to the theme for the target age group.\\n   - **Activity Description:** A step-by-step guide for a play-based, sensory, and interesting activity. Mention specific resources.\\n   - **Assessment for Learning:** Suggest 1-2 methods for teachers to observe and assess children's learning during the activity.\\n3. The tone and content must align with the guide's core principles: 'Child-centredness', 'Learning through Play', 'Real-life themes', and 'Balanced Development'.",
+        "options": {
+          "systemPromptTemplate": "You are an expert kindergarten curriculum designer specializing in the Hong Kong Education Bureau's (EDB) Kindergarten Education Curriculum Guide (2017). Your task is to create a detailed, practical, and developmentally appropriate teaching plan STRICTLY based on the provided curriculum guide content. \n----------------\nContext: {context}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainRetrievalQa",
+      "typeVersion": 1.6,
+      "position": [
+        -1440,
+        928
+      ],
+      "id": "ed39f58d-9a40-4d61-a7dc-703c582c92c3",
+      "name": "Question and Answer Chain"
+    },
+    {
+      "parameters": {
+        "topK": 5
+      },
+      "type": "@n8n/n8n-nodes-langchain.retrieverVectorStore",
+      "typeVersion": 1,
+      "position": [
+        -1344,
+        1152
+      ],
+      "id": "d756013b-e122-437a-ba3a-013432a6f542",
+      "name": "Vector Store Retriever"
+    },
+    {
+      "parameters": {
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "kindergarten-curriculum",
+          "mode": "list",
+          "cachedResultName": "kindergarten-curriculum"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        -1344,
+        1360
+      ],
+      "id": "af944c45-e111-4214-bde9-53f0be7d9590",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "zb0hgTFLyEb5sW5g",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -1472,
+        192
+      ],
+      "id": "c8dbee01-b21a-44e2-b7f2-93699bb6a72f",
+      "name": "Embeddings OpenAI1",
+      "credentials": {
+        "openAiApi": {
+          "id": "MnjqsHpL4iBEQ85h",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1920,
+        176
+      ],
+      "id": "5e86dcd8-36d7-48f8-9e34-b15c4ec75dae",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -1264,
+        1568
+      ],
+      "id": "0cfc2b8b-93e7-4a0c-a0ec-41d5d6abaee9",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "MnjqsHpL4iBEQ85h",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "### Load data into database\nFetch PDF, split it into chunks and insert into Pinecone index",
+        "height": 675,
+        "width": 758,
+        "color": 7
+      },
+      "id": "e3271a20-9d1e-4d32-bdf9-e6065a43f2b8",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1760,
+        -96
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "### Generate Lesson Plan with database\nEmbed the incoming chat message and use it retrieve relevant chunks from the vector store. These are passed to the model to formulate the lesson plan",
+        "height": 883,
+        "width": 966,
+        "color": 7
+      },
+      "id": "efb99136-8283-4294-946c-3c36b7809327",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1760,
+        816
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "1e26aab9-77b2-45f2-b39a-457f00a86c51",
+      "name": "Return Lesson Plan Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        -976,
+        928
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Lesson Plan Webhook": {
+      "main": [
+        [
+          {
+            "node": "Store User Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store User Input": {
+      "main": [
+        [
+          {
+            "node": "Question and Answer Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "PDF Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get PDF": {
+      "main": [
+        [
+          {
+            "node": "PDF Embeddings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PDF Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "PDF Embeddings",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Question and Answer Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vector Store Retriever": {
+      "ai_retriever": [
+        [
+          {
+            "node": "Question and Answer Chain",
+            "type": "ai_retriever",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "Vector Store Retriever",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "PDF Embeddings",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Question and Answer Chain": {
+      "main": [
+        [
+          {
+            "node": "Return Lesson Plan Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "411214ac-00e0-46ab-903b-7dab3944622c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "feb19287dd4ff5146542a445fe7b9bc91347298f84dfb4fe14d350ec39e4bb1a"
+  },
+  "id": "Ki2P8WqqLsXfot3J",
+  "tags": []
+}
