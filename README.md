@@ -1,4 +1,4 @@
-<img width="741" height="524" alt="image" src="https://github.com/user-attachments/assets/03c02c34-d967-4f11-8971-0a67068064cd" /># Kindergarten Lesson Planner
+# Kindergarten Lesson Planner
 
 ### User Inputs: 
 Theme, Age Group (K1/K2/K3), Activity Duration, Key Learning Area, Additional Notes.
