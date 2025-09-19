@@ -1,4 +1,4 @@
-# Kindergarten Lesson Planner
+<img width="741" height="524" alt="image" src="https://github.com/user-attachments/assets/03c02c34-d967-4f11-8971-0a67068064cd" /># Kindergarten Lesson Planner
 
 ### User Inputs: 
 Theme, Age Group (K1/K2/K3), Activity Duration, Key Learning Area, Additional Notes.
@@ -14,54 +14,15 @@ Why: It is powerful, offers a free tier, is reliable for educational content gen
 Embedding: text-embedding-3-small (OpenAI). 
 Why: The industry standard, highly effective for semantic search,is  readily available in n8n.
 
-### n8n Workflow Design (High Level):
+### n8n Workflow Design:
 
-1. Webhook receives user input from the frontend. -> HTTP Request node fetches the EDB PDF from the public URL. -> The PDF is loaded and split into chunks. -> Chunks are converted into embeddings using OpenAI's model. -> Embeddings are stored in Pinecone Vector Store.
-
-<img width="794" height="539" alt="image" src="https://github.com/user-attachments/assets/ce2cd1d3-9f65-478b-ad76-b1cb11562ca5" />
-
+1. Manual click to execute load PDF into database -> HTTP Request node fetches the EDB PDF from the public URL -> The PDF is loaded and split into chunks. -> Chunks are converted into embeddings using OpenAI's model. -> Embeddings are stored in Pinecone Vector Store.
+<img width="741" height="524" alt="image" src="https://github.com/user-attachments/assets/f2ce7d23-9815-429c-aa2c-7affedffa686" />
 
 
-2. Frontend receives the user's input to query the vector store -> fetches the most relevant chunks, and injects them into the prompt for the Deepseek LLM -> The generated lesson plan is sent back to the user via the Respond to Webhook node.
+2. Frontend receives the user's input to query the vector store -> fetches the most relevant chunks from Pinecone Vector Store, and injects them into the prompt for the Deepseek LLM -> The generated lesson plan is sent back to the frontend via the Respond to Webhook node.
+<img width="871" height="655" alt="image" src="https://github.com/user-attachments/assets/0200a581-6ee7-4d59-84a7-e64b2ac06500" />
 
-<img width="884" height="657" alt="image" src="https://github.com/user-attachments/assets/da10b94f-9a67-4ead-9323-b16e4782ca2e" />
-
-
-
-## Architecture
-
-### Frontend
-- Pure HTML/CSS/JavaScript implementation
-- Responsive design with mobile support
-- Features:
-  - Interactive form for plan specifications
-  - Real-time plan generation
-  - PDF export functionality
-  - Copy to clipboard with formatting
-  - Debug mode for troubleshooting
-
-### Backend (n8n Workflow)
-- Document Processing:
-  - PDF extraction of EDB curriculum guide
-  - Text chunking with recursive character splitting
-  - Vector embeddings storage in Pinecone
-
-- LLM Integration:
-  - Model: DeepSeek Chat v3.1
-  - Provider: OpenRouter
-  - Chosen for:
-    - Strong performance on structured outputs
-    - Cost-effective API usage
-    - Good context window size
-    - Native Chinese language + English support
-
-- Vector Store:
-  - Platform: Pinecone
-  - Embedding Model: OpenAI text-embedding-3-small
-  - Advantages:
-    - Fast similarity search
-    - Efficient vector storage
-    - Easy integration with n8n
 
 ## Usage
 
@@ -75,28 +36,3 @@ Why: The industry standard, highly effective for semantic search,is  readily ava
 
 3. Click "Generate Lesson Plan"
 4. View, download, or copy the generated plan
-
-## Sample Output
-
-### Input
-- Theme: Seasons
-- Age Group: K2 (3-4 years)
-- Duration: 45 minutes
-- Learning Area: Nature and Living
-
-### Output
-```markdown
-### Learning Objectives:
-1. To develop sensory abilities through exploring seasonal changes
-2. To encourage observation of natural elements
-3. To build vocabulary related to weather and seasons
-
-### Key Vocabulary:
-- Seasons
-- Weather
-- Changes
-- Temperature
-- Nature
-
-[... full plan in project samples folder ...]
-```
